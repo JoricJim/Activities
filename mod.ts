@@ -42,7 +42,7 @@ const ACTIVITIES: {
   },
   wordSnacks: {
     id: "879863976006127627",
-    name: "Word Snacks",
+    name: "Слова",
   },
 };
 
@@ -64,7 +64,7 @@ const commands = [
       {
         name: "activity",
         type: "STRING",
-        description: "Activity to start.",
+        description: "Начало активности",
         required: true,
         choices: Object.entries(ACTIVITIES).map((e) => ({
           name: e[1].name,
