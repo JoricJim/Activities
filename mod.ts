@@ -1,6 +1,5 @@
 import * as slash from "https://code.harmony.rocks/v2.0.0/deploy";
 
-// Pick up TOKEN and PUBLIC_KEY from ENV.
 slash.init({ env: true });
 
 const ACTIVITIES: {
@@ -19,7 +18,7 @@ const ACTIVITIES: {
   },
   youtube: {
     id: "755600276941176913",
-    name: "YouTube Together",
+    name: "YouTube",
   },
   fishing: {
     id: "814288819477020702",
@@ -50,16 +49,16 @@ const ACTIVITIES: {
 const commands = [
    {
      name: "invite",
-     description: "Invite me to your server.",
+     description: "Пригласите меня на свой сервер",
    },
    {
      name: "activity",
-     description: "Start an Activity in a Voice Channel.",
+     description: "Запустить активность в голосовом канале",
      options: [
       {
         name: "channel",
         type: "CHANNEL",
-        description: "Voice Channel to start activity in.",
+        description: "Голосовой канал для начала активности",
         required: true,
       },
       {
@@ -76,7 +75,6 @@ const commands = [
   },
 ];
 
-// Create Slash Commands if not present
 slash.commands.all().then((e) => {
   let cmd;
   if (
@@ -96,23 +94,11 @@ slash.handle("activity", (d) => {
   if (!channel || !activity) return;
   
   if (channel.type !== slash.ChannelTypes.GUILD_VOICE) {
-    return d.reply("Activities can only be started in Voice Channels!", {
+    return d.reply("Активность можно запускать только на голосовых каналах", {
       ephemeral: true,
     });
   }
 
-  // POST /channels/{channel.id}/invites
-  // with target_type: 2,
-  // and target_appliation_id: app_id of activity
-  
-  // Wanna curl?
-  /* 
-     curl -X POST \
-       -H "Authorization: Bot $TOKEN" \
-       -H "Content-Type: application/json" \
-       https://discord.com/api/v9/channels/$CHANNEL_ID/invites \
-       -d "{ \"max_age\": 604800, \"max_uses\": 0, \"target_type\": 2, \"target_application_id\": \"$APP_ID\", \"temporary\": false }"
-  */
   return slash.client.rest.api.channels[channel.id].invites
     .post({
       max_age: 604800,
@@ -123,25 +109,21 @@ slash.handle("activity", (d) => {
     })
     .then((inv) => {
       return d.reply(
-        `[Click here to start ${activity.name} in ${channel.name}.](<https://discord.gg/${inv.code}>)`
+        `[Нажмите сюда для подключения к активности](<https://discord.gg/${inv.code}>)`
       );
     })
     .catch((e) => {
-      console.error("Starting Activity Failed", e);
-      return d.reply("Failed to start Activity.", { ephemeral: true });
+      console.error("Не удалось запустить активность", e);
+      return d.reply("Не удалось запустить активность", { ephemeral: true });
     });
 });
 
 slash.handle("invite", (d) => {
   return d.reply(
-    `• [Click here to invite.](<https://discord.com/api/oauth2/authorize?client_id=819835984388030464&permissions=1&scope=applications.commands%20bot>)\n` +
-      `• [Check out Source Code.](<https://github.com/DjDeveloperr/ActivitiesBot>)\n` +
-      `• Originally made by [Advaith](<https://github.com/advaith1>) ([Activites Bot](<https://github.com/advaith1/Activities>)), this is a port to Deno Deploy.`,
+      `[Пригласить бота на сервер](<https://discord.com/api/oauth2/authorize?client_id=851154574399504395&permissions=1&scope=applications.commands%20bot>)`,
     { ephemeral: true },
   );
 });
 
-// Handle for any other commands received.
-slash.handle("*", (d) => d.reply("Unhandled Command", { ephemeral: true }));
-// Log all errors.
+slash.handle("*", (d) => d.reply("Необработанная команда", { ephemeral: true }));
 slash.client.on("interactionError", console.error);
